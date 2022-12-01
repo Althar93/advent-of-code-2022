@@ -1,4 +1,9 @@
 module Main where
 
+import Common
+import Day1
+
 main :: IO ()
-main = putStrLn "Hello, Haskell!"
+main = do
+    putStrLn "== Advent of Code 2022 =="
+    executeAndPrintResults "Day 1" day1Solver
