@@ -21,7 +21,8 @@ executable advent-of-code2022
   main-is:             Main.hs
   other-modules:       Common,
                        Parser,
-                       Day1
+                       Day1,
+                       Day2
   -- other-extensions:
   build-depends:       base >=4.14 && <4.15,
                        time

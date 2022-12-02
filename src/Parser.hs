@@ -15,7 +15,6 @@ module Parser (
         pEither,
         pLine,
         pSelect,
-        pIterate,
         pMaybe,
         pRepeat
     ) where
@@ -123,10 +122,6 @@ pEither pa pb = fmap Left pa <|> fmap Right pb
 pSelect :: Bool -> Parser a -> Parser b -> Parser (Either a b)
 pSelect True pa _   = fmap Left pa
 pSelect False _ pb  = fmap Right pb
-
--- Runs the parser until it can no longer do so
-pIterate :: Parser a -> Parser [a]
-pIterate p = many p
 
 -- Runs the parser and tries to execute, if it cannot, no failure is emitted
 pMaybe :: Parser a -> Parser (Maybe a)

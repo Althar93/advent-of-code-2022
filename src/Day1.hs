@@ -42,7 +42,5 @@ solvePart2 xs = sum $ take 3 (reverse (sort (map sum xs)))
 -- The full solver
 day1Solver :: IO [Int]
 day1Solver = do
-    --let input = testInput
     input <- readInputs
-    putStrLn $ show input
     return [solvePart1 input, solvePart2 input]
