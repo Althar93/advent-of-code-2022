@@ -10,6 +10,7 @@ module Parser (
         parseDigit,
         parseString,
         parseInt,
+        parseUnsignedInt,
         parseSpaces,
         parseLineReturn,
         pEither,
@@ -105,6 +106,12 @@ parseInt = do
     s   <- parseString "-" <|> return []
     ds  <- some parseDigit
     return $ read (s ++ ds)
+
+-- Parses an unsigned int
+parseUnsignedInt :: Parser Int
+parseUnsignedInt = do
+    ds  <- some parseDigit
+    return $ read ds
 
 -- Parses any space(s)
 parseSpaces :: Parser String
