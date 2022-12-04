@@ -2,7 +2,6 @@ module Day4 (day4Solver) where
 
 import Parser
 import Common
-import Data.List
 
 -- The input file path
 inputFile :: FilePath
@@ -37,11 +36,13 @@ readInputs = do
 
 -- The solver for part #1 of the puzzle
 solvePart1 :: [Pair] -> Int
-solvePart1 xss = length $ filter (\(xs,ys) -> xs `isInfixOf ` ys || ys `isInfixOf ` xs) xss
+solvePart1 xss = length $ filter (\(xs,ys) -> xs `fullyOverlaps ` ys || ys `fullyOverlaps ` xs) xss where
+    fullyOverlaps = all . (flip elem)
 
 -- The solver for part #2 of the puzzle
 solvePart2 :: [Pair] -> Int
-solvePart2 xss = length $ filter (\(xs,ys) -> (any ((flip elem) ys) xs) || (any ((flip elem) xs) ys)) xss
+solvePart2 xss = length $ filter (\(xs,ys) -> xs `hasOverlap` ys || ys `hasOverlap` xs) xss where 
+    hasOverlap = any . (flip elem)
 
 -- The full solver
 day4Solver :: IO [Int]
