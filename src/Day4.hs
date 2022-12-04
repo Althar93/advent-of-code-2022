@@ -21,7 +21,6 @@ parsePair = do
     parseChar '-'
     y1 <- parseUnsignedInt
     pMaybe parseLineReturn
-    --let halfLength = length contents `div` 2
     return ([x0..x1], [y0..y1])
 
 -- Parses all the pairs
@@ -48,5 +47,4 @@ solvePart2 xss = length $ filter (\(xs,ys) -> xs `hasOverlap` ys || ys `hasOverl
 day4Solver :: IO [Int]
 day4Solver = do
     input <- readInputs
-    putStrLn $ show input
     return [solvePart1 input, solvePart2 input]
