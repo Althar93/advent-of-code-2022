@@ -17,7 +17,6 @@ module Parser (
         pLine,
         pSelect,
         pMaybe,
-        pRepeat
     ) where
 
 import Control.Applicative
@@ -140,10 +139,3 @@ pLine p = do
     a <- p
     pMaybe parseLineReturn
     return a
-
--- Runs the parser a number of times and returns an array of results
-pRepeat :: Int -> Parser a -> Parser [a]
-pRepeat 0 _ = pure []
-pRepeat n p = do
-    a <- p
-    fmap (a:) (pRepeat (n - 1) p)

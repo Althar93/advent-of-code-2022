@@ -35,7 +35,7 @@ readInputs = do
 
 -- The solver for part #1 of the puzzle
 solvePart1 :: [Pair] -> Int
-solvePart1 xss = length $ filter (\(xs,ys) -> xs `fullyOverlaps ` ys || ys `fullyOverlaps ` xs) xss where
+solvePart1 xss = length $ filter (\(xs,ys) -> xs `fullyOverlaps` ys || ys `fullyOverlaps` xs) xss where
     fullyOverlaps = all . (flip elem)
 
 -- The solver for part #2 of the puzzle
