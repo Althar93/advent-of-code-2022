@@ -82,7 +82,7 @@ stepStack m r sss                           = stepStack' m r 1 sss where
 
 -- Runs the entire puzzle - the boolean indicates whether we 
 -- should be using 'CrateMover 9000' which can only pick one crate at a time (reversing the order)
--- or 'CrateMover 9001' which can pick creates and retains the order
+-- or 'CrateMover 9001' which can pick crates and retains the order
 runPuzzle :: Puzzle -> Bool -> [Stack]
 runPuzzle Puzzle { stacks = s, moves = [] } r = s
 runPuzzle Puzzle { stacks = s, moves = m  } r = runPuzzle Puzzle { stacks = s', moves = m' } r where
