@@ -69,8 +69,9 @@ parseOutput = parseDirectory <|> parseFile
 -- Executes a single file system command
 executeCommand :: Command -> FileSystemState -> FileSystemState
 executeCommand (CmdCd n) fss = case n of
+    "/"  -> fss { current = ["/"]                }
     ".." -> fss { current = (tail (current fss)) }
-    n    -> fss { current = (n:(current fss)), fileSystem = (insertDirectory (current fss) n (fileSystem fss)) }
+    n    -> fss { current = (n:(current fss))    }
 executeCommand (CmdLs)   fss = fss
 
 -- Executes a single file system
@@ -79,11 +80,6 @@ executeOutput (OutDirectory n) fss = fss { fileSystem = fs' } where
     fs' = insertDirectory (current fss) n (fileSystem fss)
 executeOutput (OutFile n s) fss    = fss { fileSystem = fs' } where
     fs' = insertFile (current fss) n s (fileSystem fss)
-
--- Returns the name of the file system
-name :: FileSystem -> String
-name (Directory n _) = n
-name (File n _)      = n
 
 -- Returns whether the file system is a directory
 isDirectory :: FileSystem -> Bool
@@ -96,7 +92,7 @@ insertAt cs ifs (Directory d xs) | (null cs)                                    
                                  | (last cs) == d && (length cs) == 1 && not (ifs `elem` xs) = Directory d (ifs:xs)
                                  | (last cs) == d && (length cs) >  1                        = Directory d (map (insertAt (init cs) ifs) xs)
                                  | otherwise                                                 = Directory d xs
-insertAt _  _   fs                                  = fs
+insertAt _  _   fs                                                                           = fs
 
 -- Inserts a directory
 insertDirectory :: [String] -> String -> FileSystem -> FileSystem
@@ -113,7 +109,7 @@ parseFileSystem = do
     return $ fileSystem (foldl replayFileSystemState defaultFileSystemState s) where
         replayFileSystemState fss (Left  c) = executeCommand c fss
         replayFileSystemState fss (Right o) = executeOutput  o fss
-        defaultFileSystemState              = FileSystemState { current = ["$"], fileSystem = (Directory "$" []) }
+        defaultFileSystemState              = FileSystemState { current = ["/"], fileSystem = (Directory "/" []) }
 
 -- Reads the test input
 readInputs :: IO FileSystem
@@ -129,28 +125,23 @@ totalFileSystemSize (Directory _ xs) = sum $ map totalFileSystemSize xs
 -- Traverses the filesytem given a predicate & function to execute
 traverseFileSystem :: (FileSystem -> Bool) -> (FileSystem -> a) -> FileSystem -> [a]
 traverseFileSystem p f fss = traverseFileSystem' p f [] fss where
-    traverseFileSystem' p f rs x@(Directory _ xs) = if p x then ((f x) : concatMap (traverseFileSystem' p f rs) xs) else concatMap (traverseFileSystem' p f rs) xs
-    traverseFileSystem' p f rs x@(File _ _)       = if p x then ((f x) : rs) else rs
+    traverseFileSystem' p f rs x@(Directory _ xs) = if (p x) then ((f x) : concatMap (traverseFileSystem' p f rs) xs) else concatMap (traverseFileSystem' p f rs) xs
+    traverseFileSystem' p f rs x@(File _ _)       = if (p x) then ((f x) : rs) else rs
 
 -- List the sizes of the directories within the file system
-listDirectorySizes :: FileSystem -> [(String, Int)]
-listDirectorySizes fs = traverseFileSystem isDirectory (\x -> (name x, totalFileSystemSize x)) fs
+listDirectorySizes :: FileSystem -> [Int]
+listDirectorySizes fs = traverseFileSystem isDirectory totalFileSystemSize fs
 
 -- The solver for part #1 of the puzzle
 solvePart1 :: FileSystem -> Int
-solvePart1 fs = sum sm where
-    sm  = map snd dsm
-    dsm = filter (\(_, s) -> s <= 100000) ds
+solvePart1 fs = sum $ filter (<= 100000) ds where
     ds  = listDirectorySizes fs
 
 -- The solver for part #2 of the puzzle
 solvePart2 :: FileSystem -> Int
-solvePart2 fs = head (sort sm) where
-    sm  = map snd dsm
-    dsm = filter (\(_, s) -> s >= tf) ds
-    tf  = 30000000 - f
-    f   = 70000000 - (snd (head os))
-    os  = filter (\(n, s) -> n == "$") ds
+solvePart2 fs = head $ filter (>= ms) dss where
+    ms =  30000000 - (70000000 - (last dss))
+    dss = sort ds
     ds  = listDirectorySizes fs
 
 -- The full solver
