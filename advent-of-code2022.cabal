@@ -28,7 +28,8 @@ executable advent-of-code2022
                        Day5,
                        Day6,
                        Day7,
-                       Day8
+                       Day8,
+                       Day9
   -- other-extensions:
   build-depends:       base >=4.14 && <4.15,
                        time
