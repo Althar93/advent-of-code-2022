@@ -3,7 +3,6 @@ module Day10 (day10Solver) where
 import Common
 import Parser
 import Data.Char
-import Data.List
 
 -- The input file path
 inputFile :: FilePath
