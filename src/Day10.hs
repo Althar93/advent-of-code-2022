@@ -46,6 +46,7 @@ readInputs = do
     contents <- readFile inputFile
     return $ (runParser parseInstructions contents)
 
+-- Executes the program instructions and returns a full listing of the program state per cycle
 executeProgramAndTrack :: [Instruction] -> ProgramState -> [ProgramState]
 executeProgramAndTrack iss p = executeProgramAndTrack' iss p [] where
     executeProgramAndTrack' []         _        ss = ss
@@ -53,6 +54,7 @@ executeProgramAndTrack iss p = executeProgramAndTrack' iss p [] where
         Noop   -> (executeProgramAndTrack' is (x, c + 1)        (ss ++ [(x, c + 1)])) 
         AddX n -> (executeProgramAndTrack' is (x + n, c + 2)    (ss ++ [(x, c + 1), (x, c + 2)])) 
 
+-- Executes the program instructions and returns a curated listing of the program states
 executeProgramAndTrackFilter :: [Instruction] -> [Int] -> ProgramState -> [ProgramState]
 executeProgramAndTrackFilter is fs p = filter (\(_, c) -> c `elem` fs) (executeProgramAndTrack is p)
 
