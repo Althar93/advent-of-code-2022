@@ -63,7 +63,7 @@ at sss (x, y) = (sss !! y) !! x
 buildMoveMap :: Map -> [[Path]]
 buildMoveMap m = traverseField (buildMoves sss) sss where
     sss = (cells m)
-    buildMoves sss x y h = filter (\(x, y) -> ((sss !! y) !! x) <= h + 1) (u++d++l++r) where
+    buildMoves sss x y h = filter (\p-> (sss `at` p) <= h + 1) (u++d++l++r) where
         u = if y > 0                        then [(x + 0, y - 1)] else []
         d = if y < (length sss - 1)         then [(x + 0, y + 1)] else []
         l = if x > 0                        then [(x - 1, y + 0)] else []
@@ -73,7 +73,7 @@ buildMoveMap m = traverseField (buildMoves sss) sss where
 buildMoveMapInverse :: Map -> [[Path]]
 buildMoveMapInverse m = traverseField (buildMoves sss) sss where
     sss = (cells m)
-    buildMoves sss x y h = filter (\(x, y) -> h <= ((sss !! y) !! x) + 1 ) (u++d++l++r) where
+    buildMoves sss x y h = filter (\p -> h <= (sss `at` p) + 1 ) (u++d++l++r) where
         u = if y > 0                        then [(x + 0, y - 1)] else []
         d = if y < (length sss - 1)         then [(x + 0, y + 1)] else []
         l = if x > 0                        then [(x - 1, y + 0)] else []
@@ -129,7 +129,7 @@ drawMap m = mapM_ (drawRows css) [0..(length css - 1)] where
     drawRows m y = putStrLn $ map (drawCell css y) [0..(length (head css) - 1)]
     drawCell m y x  | (x, y) == s = 'S'
                     | (x, y) == e = 'E'
-                    | otherwise   = heightToChar ((css !! y) !! x)
+                    | otherwise   = heightToChar (css `at` (x, y))
 
 -- The solver for part #1 of the puzzle
 solvePart1 :: Map -> Int
@@ -143,7 +143,7 @@ solvePart2 :: Map -> Int
 solvePart2 m = (length $ shortestPath (computePathsBF mm s e)) - 1 where
         mm = buildMoveMapInverse m
         s  = (end m)
-        e  = (\(x, y) -> (((cells m) !! y) !! x) == 0)
+        e  = (\p -> ((cells m) `at` p) == 0)
 
 -- The full solver
 day12Solver :: IO [Int]
