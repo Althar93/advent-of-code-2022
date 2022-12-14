@@ -118,6 +118,7 @@ produceSandUntilOverflow s c = produceSandUntilOverflow' [s] c where
         Just ps  -> produceSandUntilOverflow' (init ps') (addSand (last ps) c) where
             ps'  = (takeWhile (not . (==) (head ps)) ps0) ++ ps
 
+-- Produces a number of sand units until blocked (i.e. the sand source becomes blocked)
 produceSandUntilClogged :: Vector2 -> Cave -> Cave
 produceSandUntilClogged s c = produceSandUntilClogged' [s] c where
     produceSandUntilClogged' ps0 c = case produceSandUnit (last ps0) c of
@@ -125,6 +126,7 @@ produceSandUntilClogged s c = produceSandUntilClogged' [s] c where
         Just ps  -> if (last ps) == (sandPourPos c) then (addSand (last ps) c) else produceSandUntilClogged' (init ps') (addSand (last ps) c) where
             ps'  = (takeWhile (not . (==) (head ps)) ps0) ++ ps
 
+-- Concatenates two maybe arrays into one, yielding Nothing if either contains Nothing
 concatMaybe :: Maybe [a] -> Maybe [a] -> Maybe [a]
 concatMaybe Nothing _               = Nothing
 concatMaybe _ Nothing               = Nothing
