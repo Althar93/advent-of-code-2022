@@ -83,21 +83,21 @@ caveBounds c = (bm, bM) where
     xs = ((sandPourPos c):(sandCells c)++(wallCells c))
 
 -- Returns whether the specified position is a wall
-isWall :: Vector2 -> Cave -> Bool
-isWall p c = p `elem` (wallCells c)
+isWall :: Cave -> Vector2 -> Bool
+isWall c p = p `elem` (wallCells c)
 
 -- Returns whether the specified position is sand
-isSand :: Vector2 -> Cave -> Bool
-isSand p c = p `elem` (sandCells c)
+isSand :: Cave -> Vector2 -> Bool
+isSand c p = p `elem` (sandCells c)
 
 -- Returns whether the specified position is floor
-isFloor :: Vector2 -> Cave -> Bool
-isFloor p c | hasFloor c = (snd p) == (limitY c)
+isFloor :: Cave -> Vector2 -> Bool
+isFloor c p | hasFloor c = (snd p) == (limitY c)
             | otherwise  = False
 
 --Returns whether the specified position is blocked
-isBlocked :: Vector2 -> Cave -> Bool
-isBlocked p c = (isWall p c) || (isSand p c)
+isBlocked :: Cave -> Vector2 -> Bool
+isBlocked c p = (isSand c p) || (isWall c p)
 
 -- Draws the map
 drawCave :: Cave -> IO ()
@@ -105,9 +105,9 @@ drawCave c = mapM_ drawRows [minY..maxY] where
     ((minX, minY), (maxX, maxY))                = (caveBounds c)
     drawRows y                                  = putStrLn $ map (drawCell y) [minX..maxX]
     drawCell y x | (x, y) == (sandPourPos c)    = '+'
-                 | isWall  (x, y) c             = '#'
-                 | isFloor (x, y) c             = '#'
-                 | isSand  (x, y) c             = 'o'
+                 | isWall  c (x, y)             = '#'
+                 | isFloor c (x, y)             = '#'
+                 | isSand  c (x, y)             = 'o'
                  | otherwise                    = '.'
 
 -- Produces a number of sand units until overflow is reached (i.e. sand starts to fall forever)
@@ -126,37 +126,34 @@ produceSandUntilClogged s c = produceSandUntilClogged' [s] c where
         Just ps  -> if (last ps) == (sandPourPos c) then (addSand (last ps) c) else produceSandUntilClogged' (init ps') (addSand (last ps) c) where
             ps'  = (takeWhile (not . (==) (head ps)) ps0) ++ ps
 
--- Concatenates two maybe arrays into one, yielding Nothing if either contains Nothing
-concatMaybe :: Maybe [a] -> Maybe [a] -> Maybe [a]
-concatMaybe Nothing _               = Nothing
-concatMaybe _ Nothing               = Nothing
-concatMaybe  (Just xs) (Just ys)    = Just (xs++ys)
+-- Constructs a maybe list by appending a maybe value to a maybe list, yielding Nothing if either is Nothing
+consMaybe :: Maybe a -> Maybe [a] -> Maybe [a]
+consMaybe x ys = fmap (:) x <*> ys
 
 -- Produces a sand unit & returns its resting position
 produceSandUnit :: Vector2 -> Cave -> Maybe [Vector2]
 produceSandUnit s c = takeRestingPosition $ (moveSand c s) where     
     -- Resting position or nothing & account for the presence of a floor
-    takeRestingPosition []                                                       = Just []                                      
+    takeRestingPosition []                                                       = Just []                                    
     takeRestingPosition (p@(_, y):ps)   | y >= (limitY c) - 1 && (hasFloor c)    = Just [p]
                                         | y >= (limitY c)                        = Nothing
-                                        | otherwise                              = concatMaybe (Just [p]) (takeRestingPosition ps) 
+                                        | otherwise                              = consMaybe (Just p) (takeRestingPosition ps) 
     -- Move the sand grain along
-    moveSand c (x, y) | (isBlocked (x, y + 1) c) && (isBlocked (x - 1, y + 1) c) && (isBlocked (x + 1, y + 1) c)    = [(x, y)]
-                      | (isBlocked (x, y + 1) c) && not (isBlocked (x - 1, y + 1) c)                                =  (x, y) : (moveSand c (x - 1, y + 1))
-                      | (isBlocked (x, y + 1) c) && not (isBlocked (x + 1, y + 1) c)                                =  (x, y) : (moveSand c (x + 1, y + 1))
-                      | otherwise                                                                                   =  (x, y) : (moveSand c (x + 0, y + 1))
+    moveSand c (x, y) = case filter (not . isBlocked c) [(x, y + 1), (x - 1, y + 1), (x + 1, y + 1)] of
+        []      -> [(x, y)]
+        (p:ps)  -> (x, y) : (moveSand c p)
 
 -- The solver for part #1 of the puzzle
 solvePart1 :: Cave -> IO Int
 solvePart1 c = do 
-    drawCave c' 
+    --drawCave c' 
     return $ length (sandCells c') where
         c' = produceSandUntilOverflow (sandPourPos c) c
 
 -- The solver for part #2 of the puzzle
 solvePart2 :: Cave -> IO Int
 solvePart2 c = do
-    drawCave c' 
+    --drawCave c' 
     return $ length (sandCells c') where
         c' = produceSandUntilClogged (sandPourPos c) (mkFloor c)
 
