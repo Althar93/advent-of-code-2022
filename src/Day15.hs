@@ -2,8 +2,8 @@ module Day15 (day15Solver) where
 
 import Common
 import Parser
-import Data.Maybe
 import Data.List
+import Data.Maybe
 
 -- The input file path
 inputFile :: FilePath
@@ -65,8 +65,8 @@ caveBounds c = (bm, bM) where
 -- Draws the map
 drawCave :: Cave -> Int -> IO ()
 drawCave c n = mapM_ drawRows [minY..maxY] where
-    ((minX, minY), (maxX, maxY))                        = (caveBounds c)
-    drawRows y                                          = putStrLn $ map (drawCell y) [minX..maxX]
+    ((minX, minY), (maxX, maxY)) = (caveBounds c)
+    drawRows y                   = putStrLn $ map (drawCell y) [minX..maxX]
     drawCell y x | (x, y) `elem` (map (\(x, y, r) -> (x, y)) (sensors c))   = 'S'
                  | (x, y) `elem` (beacons c)                                = 'B'
                  | (x, y) `inRangeOf` (sensors c !! n)                      = '#'
@@ -101,9 +101,11 @@ intersectsRow :: Int -> Sensor -> Bool
 intersectsRow y s = y `isBetween` (sensorBoundsY s)
 
 -- Returns the sensor's span for the given row
-spanRow :: Int -> Sensor -> (Int, Int)
-spanRow y (xs, ys, rs) = (xs - dx, xs + dx) where
-    dx = rs - abs(y - ys)  
+spanRow :: Int -> Sensor -> Maybe (Int, Int)
+spanRow y (xs, ys, rs) | dx > 0 = Just (xs - dx, xs + dx)
+                       | otherwise = Nothing 
+                       where
+                            dx = rs - abs(y - ys)  
 
 -- Reduces a set of spans to unique (merged) spans
 reduceSpan :: [(Int, Int)] -> [(Int, Int)]
@@ -133,8 +135,9 @@ subtractSpans (xm0, xM0) ((xm1, xM1):xs)    | xm0 <= xm1 && xM0 >= xM1  = (subtr
 -- The boolean indicates whether beacons should be included or not from the scan
 computeScannedRows :: Int -> Bool -> Cave -> [Vector2]
 computeScannedRows y i c = if i then filter (\y -> not (y `elem` (beacons c))) ys else ys where
-    ys  = zip (flattenSpan xs) (repeat y)
-    xs  = reduceSpan . sort $ map (spanRow y) ss
+    ys  = zip (flattenSpan ts) (repeat y)
+    ts  = reduceSpan xs
+    xs  = sort $ mapMaybe (spanRow y) ss
     ss  = filter (intersectsRow y) (sensors c)
 
 --Computes the shadowed rows (i.e. not covered by any sensor)
@@ -142,19 +145,17 @@ computeShadowedRows :: (Int, Int) -> Int -> Cave -> [Vector2]
 computeShadowedRows s y c = ys where
     ys = zip (flattenSpan ts) (repeat y) 
     ts = subtractSpans s xs
-    xs = reduceSpan . sort $ map (spanRow y) ss
+    xs = sort $ mapMaybe (spanRow y) ss
     ss = filter (intersectsRow y) (sensors c)
 
 -- Finds the distress beacon by searching through the specified area
 findDistressBeaconInsideArea :: Int -> Cave -> Maybe Vector2
-findDistressBeaconInsideArea a c = case filter unitLength es  of
+findDistressBeaconInsideArea a c = case filter (not . null) ys  of
         []          -> Nothing
         [[b]]       -> Just b
-        otherwise   -> error $ "More than one solution : " ++ (show es) 
+        otherwise   -> error $ "More than one or malformed solution : " ++ (show ys) 
         where
-            es              = [(computeShadowedRows (0, a) y c) | y <- [0..a]]
-            unitLength [x]  = True
-            unitLength  _   = False
+            ys = [(computeShadowedRows (0, a) y c) | y <- [0..a]]
 
 -- Computes the tuning frequency based on the beacon's position
 tuneFrequency :: Vector2 -> Int
