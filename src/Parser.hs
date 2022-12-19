@@ -9,6 +9,7 @@ module Parser (
         parseChar,
         parseDigit,
         parseString,
+        parseLength,
         parseInt,
         parseUnsignedInt,
         parseSpaces,
@@ -98,6 +99,14 @@ parseString (c:s)   = do
     parseChar c
     parseString s
     return (c:s)
+
+-- Parses a number of characters into a string
+parseLength :: Int -> Parser String
+parseLength 0 = pure []
+parseLength n = do
+    c  <- parseItem
+    cs <- parseLength (n - 1)
+    return $ (c:cs)
 
 -- Parses an int
 parseInt :: Parser Int

@@ -126,10 +126,6 @@ produceSandUntilClogged s c = produceSandUntilClogged' [s] c where
         Just ps  -> if (last ps) == (sandPourPos c) then (addSand (last ps) c) else produceSandUntilClogged' (init ps') (addSand (last ps) c) where
             ps'  = (takeWhile (not . (==) (head ps)) ps0) ++ ps
 
--- Constructs a maybe list by appending a maybe value to a maybe list, yielding Nothing if either is Nothing
-consMaybe :: Maybe a -> Maybe [a] -> Maybe [a]
-consMaybe x ys = fmap (:) x <*> ys
-
 -- Produces a sand unit & returns its resting position
 produceSandUnit :: Vector2 -> Cave -> Maybe [Vector2]
 produceSandUnit s c = takeRestingPosition $ (moveSand c s) where     

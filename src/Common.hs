@@ -1,7 +1,9 @@
 module Common (
     executeAndPrintResults,
     removeDuplicates,
-    chunksOf
+    chunksOf,
+    consMaybe,
+    concatMaybe
     ) where
 
 import Data.Time
@@ -25,3 +27,14 @@ chunksOf :: Int -> [a] -> [[a]]
 chunksOf _ [] = []
 chunksOf 0 _  = []
 chunksOf n xs = (take n xs) : (chunksOf n (drop n xs))
+
+-- Constructs a maybe list by appending a maybe value to a maybe list, yielding Nothing if either is Nothing
+consMaybe :: Maybe a -> Maybe [a] -> Maybe [a]
+consMaybe x ys = fmap (:) x <*> ys
+
+-- Concatenates two maybe lists by appending their just values together
+concatMaybe :: Maybe [a] -> Maybe [a] -> Maybe [a]
+concatMaybe xs ys = fmap (++) xs <*> ys
+--concatMaybe Nothing (Just ys)   = ys
+--concatMaybe (Just xs) Nothing   = xs
+--concatMaybe (Just ys) (Just xs) = Just (xs ++ ys)
