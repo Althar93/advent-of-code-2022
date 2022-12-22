@@ -62,21 +62,6 @@ extrudeCell cs nm c = concatMap (extrudeCell' cs c 1) es where
                             add (xa, ya, za) (xb, yb, zb) = (xa + xb, ya + yb, za + zb)
                             mul (xa, ya, za) f            = (xa * f , ya * f , za * f )
 
--- Extrudes the cell in the given direction & length
-extrudeCellAbort :: [Vector3] -> Int -> Vector3 -> [Vector3]
-extrudeCellAbort cs nm c = concat $ mapMaybe (extrudeCell' cs c 1 []) es where
-    ns = neighbouringCells cs c
-    es = exposedDirections ns c
-    extrudeCell' :: [Vector3] -> Vector3 -> Int -> [Vector3] -> Vector3 -> Maybe [Vector3]
-    extrudeCell' cs c n cs' e   | c' `elem` cs    = Nothing
-                                | n > nm          = Just cs'
-                                | otherwise       = extrudeCell' cs c (n + 1) (c':cs') e
-                                where
-                                    c'                            = c `add` (e `mul` n)
-                                    add (xa, ya, za) (xb, yb, zb) = (xa + xb, ya + yb, za + zb)
-                                    mul (xa, ya, za) f            = (xa * f , ya * f , za * f )
-
-
 -- The solver for part #1 of the puzzle
 solvePart1 :: [Vector3] -> Int
 solvePart1 xs = sum $ map computeCellSurface ns where
@@ -93,6 +78,7 @@ solvePart2 xs = sts - sis where
     nis     = map (neighbouringCells is') is' 
     nts     = map (neighbouringCells xs ) xs
     -- To disambiguate cells which are inside from those which are merely occluded, only keep the cells which are fully surrounding by internal and/or external cells
+    -- TODO : To work in the general case, we would need to invoke this several times - a single iteration will only work for shallow alcoves/bays
     is'     = map fst is
     is      = filter (\(c, ss) -> (computeCellSurface ss) == 0) nos'
     nos'    = zip os' nos 
@@ -103,7 +89,7 @@ solvePart2 xs = sts - sis where
     -- Extrude all cells outwards
     ess     = concatMap (extrudeCell xs n) xs 
     -- Arbitrary extrusion amount (should probably be the max extents of the volume to be sure)
-    n       = 25
+    n       = 20
 
 -- The full solver
 day18Solver :: IO [Int]

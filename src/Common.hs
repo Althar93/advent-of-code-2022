@@ -3,7 +3,9 @@ module Common (
     removeDuplicates,
     chunksOf,
     consMaybe,
-    concatMaybe
+    concatMaybe,
+    mapJusts,
+    minmax
     ) where
 
 import Data.Time
@@ -35,6 +37,15 @@ consMaybe x ys = fmap (:) x <*> ys
 -- Concatenates two maybe lists by appending their just values together
 concatMaybe :: Maybe [a] -> Maybe [a] -> Maybe [a]
 concatMaybe xs ys = fmap (++) xs <*> ys
---concatMaybe Nothing (Just ys)   = ys
---concatMaybe (Just xs) Nothing   = xs
---concatMaybe (Just ys) (Just xs) = Just (xs ++ ys)
+
+-- Maps a function over a list of maybes on the just values only
+mapJusts :: (a -> b) -> [Maybe a] -> [Maybe b]
+mapJusts _ []               = []
+mapJusts f (mx:xs)           = case mx of
+    Nothing -> Nothing:(mapJusts f xs)
+    Just x  -> (Just (f x)):(mapJusts f xs)
+
+-- Returns the min max of two values
+minmax :: (Ord a) => a -> a -> (a, a)
+minmax a b | a <= b     = (a, b)
+           | otherwise  = (b, a)

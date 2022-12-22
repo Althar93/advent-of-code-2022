@@ -19,6 +19,10 @@ import Day15
 import Day16
 import Day17
 import Day18
+import Day19
+import Day20
+import Day21
+import Day22
 
 main :: IO ()
 main = do
@@ -40,4 +44,8 @@ main = do
     --executeAndPrintResults "Day 15" day15Solver
     --executeAndPrintResults "Day 16" day16Solver -- TODO
     --executeAndPrintResults "Day 17" day17Solver
-    executeAndPrintResults "Day 18" day18Solver
+    --executeAndPrintResults "Day 18" day18Solver
+    -- executeAndPrintResults "Day 19" day19Solver -- TODO
+    --executeAndPrintResults "Day 20" day20Solver
+    --executeAndPrintResults "Day 21" day21Solver
+    executeAndPrintResults "Day 22" day22Solver
