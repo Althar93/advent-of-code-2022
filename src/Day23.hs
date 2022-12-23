@@ -45,7 +45,7 @@ readInputs = do
 -- Returns the neighbours of a given elf
 neighbours :: [Elf] -> Elf -> [Maybe Elf]
 neighbours es (x, y) = map (\n -> if n `elem` es then Just n else Nothing) ns where
-    ns = map (\(dx, dy) -> (x + dx, y + dy)) [(-1, -1), (1, -1), (1, 1), (-1, 1), (0, -1), (1, 0), (0, 1), (-1, 0)]--[(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
+    ns = map (\(dx, dy) -> (x + dx, y + dy)) [(-1, -1), (1, -1), (1, 1), (-1, 1), (0, -1), (1, 0), (0, 1), (-1, 0)]
 
 -- First half of a round
 stepFirstHalf :: [Elf] -> Int -> [Maybe Elf] 
