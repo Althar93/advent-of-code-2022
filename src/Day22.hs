@@ -120,8 +120,8 @@ movePart1 m (x0, y0, d) (dx, dy)    | (dy == 0) = map fromJust $ takeWhile isJus
                                                 (minY, maxY)    = (snd m) !! x
 
 -- Move function for part 2 - assumes we are on a cube
-movePart2 :: Map -> Position -> (Int, Int) -> [Position]
-movePart2 m (x0, y0, d) (dx, dy)    | (dy == 0) = map fromJust $ takeWhile isJust (map checkCollisionX [(x0 + o0 + n * (signum dx), y0, d) | n <- [1..abs(dx)] ])
+movePart2 :: Int -> Map -> Position -> (Int, Int) -> [Position]
+movePart2 s m (x0, y0, d) (dx, dy)    | (dy == 0) = map fromJust $ takeWhile isJust (map checkCollisionX [(x0 + o0 + n * (signum dx), y0, d) | n <- [1..abs(dx)] ])
                                     | (dx == 0) = map fromJust $ takeWhile isJust (map checkCollisionY [(x0 + o0, y0 + n * (signum dy), d) | n <- [1..abs(dy)] ])
                                     | otherwise  = error $ "Diagonal movement not supported"
                                     where 
@@ -163,7 +163,7 @@ solvePart1 (m, ms) = do
 solvePart2 :: (Map, [Move]) -> IO Int
 solvePart2 (m, ms) = do
     let p0          = (0, 0, East)
-    let ps          = executeMoves movePart2 m p0 ms
+    let ps          = executeMoves (movePart2 4) m p0 ms
     let password    = computePassword (last ps)
     return $ password
 

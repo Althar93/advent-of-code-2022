@@ -5,7 +5,9 @@ module Common (
     consMaybe,
     concatMaybe,
     mapJusts,
-    minmax
+    minmax,
+    isUnique,
+    rotate
     ) where
 
 import Data.Time
@@ -40,8 +42,8 @@ concatMaybe xs ys = fmap (++) xs <*> ys
 
 -- Maps a function over a list of maybes on the just values only
 mapJusts :: (a -> b) -> [Maybe a] -> [Maybe b]
-mapJusts _ []               = []
-mapJusts f (mx:xs)           = case mx of
+mapJusts _ []           = []
+mapJusts f (mx:xs)      = case mx of
     Nothing -> Nothing:(mapJusts f xs)
     Just x  -> (Just (f x)):(mapJusts f xs)
 
@@ -49,3 +51,17 @@ mapJusts f (mx:xs)           = case mx of
 minmax :: (Ord a) => a -> a -> (a, a)
 minmax a b | a <= b     = (a, b)
            | otherwise  = (b, a)
+
+-- Returns whether an element is unique or nothing if the element could not be found
+isUnique :: (Eq a) => a -> [a] -> Maybe Bool
+isUnique y xs = isUnique' y xs Nothing where
+    isUnique' _ []     m = m
+    isUnique' y (x:xs) m    | (y /= x)  = isUnique' y xs m
+                            | otherwise = case m of
+                                Nothing     -> isUnique' y xs (Just True)
+                                otherwise   -> Just False
+
+-- Rotates the list to the left by the specified amount
+rotate :: Int -> [a] -> [a]
+rotate n xs = (drop n' xs) ++ (take n' xs) where
+    n' = n `mod` length xs
