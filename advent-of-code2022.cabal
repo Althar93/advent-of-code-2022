@@ -43,9 +43,12 @@ executable advent-of-code2022
                        Day20,
                        Day21,
                        Day22,
-                       Day23
+                       Day23,
+                       Day24
   -- other-extensions:
   build-depends:       base >=4.14 && <4.15,
-                       time
+                       time,
+                       ansi-terminal,
+                       sleep
   hs-source-dirs:      src
   default-language:    Haskell2010

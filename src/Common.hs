@@ -23,8 +23,12 @@ executeAndPrintResults title solver = do
     putStrLn $ "Took " ++ (show (diffUTCTime endTime startTime)) ++ " to execute."
 
 -- Removes the duplicate items from a list
-removeDuplicates :: (Ord a) => [a] -> [a]
-removeDuplicates = map head . group . sort
+--removeDuplicates :: (Ord a) => [a] -> [a]
+--removeDuplicates = map head . group . sort
+removeDuplicates :: (Eq a) => [a] -> [a]
+removeDuplicates (x:xs) = x : removeDuplicates (filter (/= x) xs)
+removeDuplicates []     = []
+--removeDuplicates = map head . group . sort
 
 -- Splits a list into regularly sized chunks
 chunksOf :: Int -> [a] -> [[a]]
